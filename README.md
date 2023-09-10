@@ -150,3 +150,105 @@ func main(){
 	}
 }
 ```
+
+## Konversi data menggunakan teknik casting
+
+keyword type data bisa digunakan untuk casting (konversi antar type data), cara penggunaannya dengan menuliskan tipe data tujuan sebagai function, lalu menyisipkan data yang akan adi konversi tersebut sebagai parameter.
+
+### Casting byte <--> byte
+
+string sebenarnya adalah slice/array `byte`. 
+di Golang sebuah karakter biasa (non unicode) di representasikan sebagai element slice byte, tiap element dari slice (tiap karakter dari string) berisi data int berbasis desimal yang merepresentasikan kode ASCII.
+
+```go
+package main
+
+import (
+	"fmt"
+)
+
+func main(){
+	text := "😊😀😃😄😁😅😆😂🙃😉😊😇😎😍 hello world"
+
+	a := []byte(text)
+	a = append(a, 252, 169)
+	for index, elm := range a {
+		fmt.Printf("index ke-%d\t%d\t%s\n", index, elm, string(elm))
+	}
+	fmt.Println(string(a))
+
+	fmt.Println()
+
+	// tipe data rune bisa mengatas karakter ASCII non standar (seperti karakter emoji)
+	b := []rune(text)
+	b = append(b, 252, 169)
+	for index, elm := range b {
+		fmt.Printf("index ke-%d\t%d\t%s\n", index, elm, string(elm))
+	}
+	fmt.Println(string(b))
+}
+```
+
+### Type Assertions pada interface kosong (`interface{}` / `any`)
+
+type assertions pada interface kosong adalah cara untuk mengambil atau mengkonversi nilai yang di simpan dalam interface kosong ke tipe data aslinya.
+
+```go
+package main
+
+import "fmt"
+
+func main(){
+	data := map[string]any{
+		"nama":   "Fani Alfirdaus",
+		"grade":  2,
+		"height": 160,
+		"isMale": true,
+		"hobies": []string{"eating", "sleeping"},
+	}
+	fmt.Printf("%T\t%v\n", data["nama"].(string), data["nama"].(string))
+	fmt.Printf("%T\t%v\n", data["grade"].(int), data["grade"].(int))
+	fmt.Printf("%T\t%v\n", data["height"].(int), data["height"].(int))
+	fmt.Printf("%T\t%v\n", data["isMale"].(bool), data["isMale"].(bool))
+	fmt.Printf("%T\t%v\n", data["hobies"].([]string), data["hobies"].([]string))
+	fmt.Println()
+}
+```
+
+statement `data["nama"].(string)` maksudnya adalah nilai dari `data["nama"].(string)` yang bertipe `interface{}` diambil nilai aslinya dimana nilai aslinya adalah string.
+
+Jika melakukan assertions ke tipe data yang tidak sesuai, maka akan mentrigger panic error. 
+Saat melakukan assertions pada interface kosong (`interface{}` / `any`) lalu tidak tahu tipe data aslinya, maka bisa menggunakan teknik di bawah ini.
+
+tipe data asli pada variabel `interface{}` / `any` bisa diketahui dengan cara mencasting ke tipe `type`, namun casting ini hanya bisa dilakukan di `switch`.
+
+```go
+package main
+
+import "fmt"
+
+func main(){
+	data := map[string]any{
+		"nama":   "Fani Alfirdaus",
+		"grade":  2,
+		"height": 160,
+		"isMale": true,
+		"hobies": []string{"eating", "sleeping"},
+	}
+
+	for _, value := range data {
+		switch value.(type) {
+		case string:
+			fmt.Printf("%T\t%s\n", value.(string), value.(string))
+		case int:
+			fmt.Printf("%T\t%d\n", value.(int), value.(int))
+		case bool:
+			fmt.Printf("%T\t%t\n", value.(bool), value.(bool))
+		case []string:
+			fmt.Printf("%T\t%v\n", value.([]string), value.([]string))
+		default:
+			fmt.Println("value", value)
+		}
+	}
+}
+```

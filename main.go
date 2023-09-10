@@ -5,5 +5,7 @@ import (
 )
 
 func main() {
-	lib.KonversiWithStrconv()
+	lib.KonversiWithCasting()
+	// fmt.Println()
+	// lib.KonversiWithStrconv()
 }
